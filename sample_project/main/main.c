@@ -8,10 +8,10 @@
 
 void app_main(void)
 {
-    int i=0;
+    float i=0;
     while(1){
-        printf("%d\n", i);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        i+=1;
+        printf("%f\n", i);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        i+=0.1;
     }
 }

@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Simona/Desktop/ESP/esp-idf/components/soc
+# Install script for directory: C:/Users/User/Desktop/ESP/esp-idf/components/soc
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,11 +34,11 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Users/Simona/.espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-objdump.exe")
+  set(CMAKE_OBJDUMP "C:/Users/User/.espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-objdump.exe")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/Simona/Documents/GitHub/ReLab/sample_project/build/esp-idf/soc/esp32/cmake_install.cmake")
+  include("C:/Users/User/Documents/ReLab/sample_project/build/esp-idf/soc/esp32/cmake_install.cmake")
 endif()
 
