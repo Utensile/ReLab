@@ -2,9 +2,6 @@
 *.o
 *.pyc
 
-#ignore build
-build/
-
 # gtags
 GTAGS
 GRTAGS
@@ -26,6 +23,7 @@ GPATH
 
 # cache dir
 .cache/
+build/
 
 # Components Unit Test Apps files
 components/**/build/
