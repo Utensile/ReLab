@@ -1,4 +1,4 @@
-/* * Data converted from C:/Users/User/Documents/ReLab/sample_project/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from C:/Users/Simona/Documents/GitHub/ReLab/sample_project/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded
