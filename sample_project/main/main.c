@@ -9,6 +9,7 @@
 void app_main(void)
 {
     int k=0;
+    //hel
     printf("ANCESCHIPIRAMIDALE");
     while(1){
         for(int i=0; i<k; i++){
