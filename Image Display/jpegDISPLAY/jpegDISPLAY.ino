@@ -5,16 +5,25 @@
 #include "mario.h"
 #include "zanas.h"
 
+#define IMG_NUM 3
+int pos=2;
 WROVER_KIT_LCD tft;
 const char* ssid     = "RE:Lab";
 const char* password = "Interact2019!";
+
+const int len[IMG_NUM];
+const uint8_t img[IMG_NUM][100000];
+len[0]=image1_len; img[0]=image_1;
+len[1]=mario_len; img[1]=mario;
+len[2]=zanas_len; img[2]=zanas;
+
 WiFiServer server(80);
 
 void setup() {
   Serial.begin(115200);
   tft.begin();
   tft.setRotation(1);
-  tft.drawJpg(zanas, zanas_len);
+  tft.drawJpg(img[2], len[2]);
   Serial.begin(115200);
 
   delay(10);
@@ -69,13 +78,16 @@ void loop() {
 
         // Check to see if the client request was "GET /H" or "GET /L":
         if (currentLine.endsWith("GET /H")) {
-          tft.setRotation(1);
-          tft.drawJpg(zanas, zanas_len);     // GET /H turns the LED on
+          pos++;
+          pos=pos%IMG_NUM;
         }
         if (currentLine.endsWith("GET /L")) {
-          tft.setRotation(1);
-          tft.drawJpg(mario, mario_len);              // GET /L turns the LED off
+          pos--; 
+          if(pos<0)
+            pos=0;             // GET /L turns the LED off
         }
+        ttft.setRotation(1);
+        tft.drawJpg(img[pos], len[pos]);
       }
     }
     // close the connection:
