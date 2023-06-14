@@ -1,7 +1,7 @@
 #include "Adafruit_GFX.h"
 #include "WROVER_KIT_LCD.h"
 #include <WiFi.h>
-#include "images.h"
+#include <ESPAsyncWebServer.h>
 
 #define IMG_NUM 8
 int pos = 0;
@@ -40,6 +40,7 @@ void setup() {
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
   server.begin();
 }
 
@@ -58,8 +59,8 @@ void loop() {
             client.println("Content-type:text/html");
             client.println();
             client.print("<style>body{font-family: Arial, sans-serif; text-align: center; padding: 40px 20px;}a{-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial; color: #fff; background-color: #4CAF50; border: none; padding: 15px 75px; font-size: 30px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;}.button-container{display: flex; justify-content: center; gap: 10px; margin-top: 10vh; margin-bottom: 40px;}a:hover{background-color: #45a049;}.upload-container {display: flex; justify-content: center; align-items: center; margin-bottom: 20px;} .upload-container input[type=\"file\"] {display: none;} .upload-button {color: #fff; background-color: #d9e718; border: none; padding: 10px 20px; font-size: 25px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease;} .upload-button:hover {background-color: #71790d;}</style>");
-            client.print("<body><div class=\"button-container\"><a href=\"/L\" type=\"button\">Previous Image</a><a href=\"/H\" type=\"button\">Next Image</a></div><div class=\"upload-container\"><input type=\"file\" id=\"file-upload\"><label for=\"file-upload\" class=\"upload-button\">Upload Image</label></div><br><br><img src=\"");
-            client.print(links[pos]);
+            client.print("<body><div class=\"button-container\"><a href=\"/L\" type=\"button\">Previous Image</a><a href=\"/H\" type=\"button\">Next Image</a></div><div class=\"upload-container\"><form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\"><input type=\"file\" name=\"image\" id=\"file-upload\"><label for=\"file-upload\" class=\"upload-button\">Upload Image</label><input type=\"submit\" value=\"Upload\"></form></div><br><br><img src=\"");
+            client.print("/image.jpg"); // Changed to use a fixed image path
             client.print("\"></body>");
 
             client.println();
@@ -74,14 +75,10 @@ void loop() {
         if (currentLine.endsWith("GET /H")) {
           pos++;
           pos = pos % IMG_NUM;
-          //extToInt();
-          //delay(5000);
           tft.setRotation(1);
           tft.drawJpg(img[pos], len[pos]);
         }
         if (currentLine.endsWith("GET /L")) {
-          //extToInt();
-          //delay(5000);
           pos--;
           if (pos < 0)
             pos = IMG_NUM - 1;
@@ -95,18 +92,30 @@ void loop() {
   }
 }
 
-unsigned long extToInt() {
-  unsigned long start;
-  int w, i, i2,
-      cx = tft.width() / 2 - 1,
-      cy = tft.height() / 2 - 1;
-
-  tft.fillScreen(WROVER_BLACK);
-  w = min(tft.width(), tft.height());
-  start = micros();
-  for (i = 0; i < w; i += 6) {
-    i2 = i / 2;
-    tft.drawRoundRect(cx - i2, cy - i2, i, i, i / 8, tft.color565(i, 0, 0));
-    delay(50);
+void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+  if (!index) {
+    Serial.printf("UploadStart: %s\n", filename.c_str());
+    // Optionally, you can save the uploaded image data to SPIFFS or SD card.
   }
+  // In this example, we won't save the file.
+  // Instead, we'll send a response to the client with the uploaded image data.
+  if (final) {
+    // Prepare the response
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", "Upload complete!");
+    response->addHeader("Connection", "close");
+    request->send(response);
+  }
+}
+
+void setupWebServer() {
+  AsyncWebServer server(80);
+  server.on("/upload", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleFileUpload);
+  server.begin();
+}
+
+void setup() {
+  // Rest of the setup function remains the same
+
+  // Call the setupWebServer function to start the web server
+  setupWebServer();
 }
