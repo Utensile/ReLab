@@ -11,11 +11,8 @@ WROVER_KIT_LCD tft;
 const char* ssid     = "RE:Lab";
 const char* password = "Interact2019!";
 
-const int len[IMG_NUM];
-const uint8_t img[IMG_NUM][100000];
-len[0]=image1_len; img[0]=image_1;
-len[1]=mario_len; img[1]=mario;
-len[2]=zanas_len; img[2]=zanas;
+const int len[IMG_NUM] =      {image1_len, mario_len, zanas_len};
+const uint8_t* img[IMG_NUM] = {image1, mario, zanas};
 
 WiFiServer server(80);
 
@@ -80,14 +77,17 @@ void loop() {
         if (currentLine.endsWith("GET /H")) {
           pos++;
           pos=pos%IMG_NUM;
+          tft.setRotation(1);
+          tft.drawJpg(img[pos], len[pos]);
         }
         if (currentLine.endsWith("GET /L")) {
           pos--; 
           if(pos<0)
-            pos=0;             // GET /L turns the LED off
+            pos=0;
+          tft.setRotation(1);
+          tft.drawJpg(img[pos], len[pos]);             // GET /L turns the LED off
         }
-        tft.setRotation(1);
-        tft.drawJpg(img[pos], len[pos]);
+        
       }
     }
     // close the connection:
