@@ -1,49 +1,53 @@
-/*
- * SPDX-FileCopyrightText: 2010-2022 Espressif Systems (Shanghai) CO LTD
- *
- * SPDX-License-Identifier: CC0-1.0
- */
+#include "esp_system.h"
+#include "esp_spi_flash.h"
+#include "driver/gpio.h"
+#include "driver/spi_master.h"
+#include "esp_vfs_fat.h"
+#include "sdmmc_cmd.h"
+#include "esp_vfs.h"
+#include "esp_log.h"
+#include "esp_err.h"
+#include "lcd_display.h"
+#include "image.h"
 
-#include <stdio.h>
-#include <inttypes.h>
-#include "sdkconfig.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_chip_info.h"
-#include "esp_flash.h"
+#define TAG "main"
 
-void app_main(void)
+void app_main()
 {
-    printf("Hello world!\n");
+    ESP_LOGI(TAG, "Initializing SD card...");
 
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    uint32_t flash_size;
-    esp_chip_info(&chip_info);
-    printf("This is %s chip with %d CPU core(s), WiFi%s%s, ",
-           CONFIG_IDF_TARGET,
-           chip_info.cores,
-           (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-           (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
+    ESP_ERROR_CHECK(lcd_display_init());  // Initialize the LCD display
 
-    unsigned major_rev = chip_info.revision / 100;
-    unsigned minor_rev = chip_info.revision % 100;
-    printf("silicon revision v%d.%d, ", major_rev, minor_rev);
-    if(esp_flash_get_size(NULL, &flash_size) != ESP_OK) {
-        printf("Get flash size failed");
+    ESP_LOGI(TAG, "Mounting SD card...");
+    sdmmc_host_t host = SDMMC_HOST_DEFAULT();
+    sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
+    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+        .format_if_mount_failed = false,
+        .max_files = 5
+    };
+
+    sdmmc_card_t *card;
+    esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to mount SD card (%s)", esp_err_to_name(ret));
         return;
     }
 
-    printf("%" PRIu32 "MB %s flash\n", flash_size / (uint32_t)(1024 * 1024),
-           (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
+    ESP_LOGI(TAG, "SD card mounted");
 
-    printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
+    ESP_LOGI(TAG, "Displaying image...");
 
-    for (int i = 10; i >= 0; i--) {
-        printf("Restarting in %d seconds...\n", i);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    lcd_display_clear();  // Clear the display
+
+    ret = lcd_display_image(image_data, image_width, image_height);  // Display the image
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to display image (%s)", esp_err_to_name(ret));
     }
-    printf("Restarting now.\n");
-    fflush(stdout);
-    esp_restart();
+
+    ESP_LOGI(TAG, "Image displayed");
+
+    esp_vfs_fat_sdmmc_unmount();
+    ESP_LOGI(TAG, "SD card unmounted");
 }
