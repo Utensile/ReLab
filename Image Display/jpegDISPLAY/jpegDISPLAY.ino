@@ -71,7 +71,6 @@ void loop() {
           currentLine += c;      // add it to the end of the currentLine
         }
 
-        // Check to see if the client request was "GET /H" or "GET /L":
         if (currentLine.endsWith("GET /H")) {
           pos++;
           pos=pos%IMG_NUM;
@@ -83,7 +82,7 @@ void loop() {
           if(pos<0)
             pos=IMG_NUM-1;
           tft.setRotation(1);
-          tft.drawJpg(img[pos], len[pos]);             // GET /L turns the LED off
+          tft.drawJpg(img[pos], len[pos]);
         }
         
       }
