@@ -59,7 +59,6 @@ void loop() {
             client.print("<style>body{font-family: Arial, sans-serif; text-align: center; padding: 40px 20px;}");
             client.print("a{-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial; color: #fff; background-color: #4CAF50; border: none; padding: 15px 75px; font-size: 30px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;}.button-container{display: flex; justify-content: center; gap: 10px; margin-top: 10vh; margin-bottom: 40px;}a:hover{background-color: #45a049;}</style>");
             client.print("<body><div class=\"button-container\"><a href=\"/L\" type=\"button\">Previous Image</a><a href=\"/H\" type=\"button\">Next Image</a></div><div class=\"upload-container\"><input type=\"file\" id=\"file-upload\"><label for=\"file-upload\" class=\"upload-button\">Upload Image</label></div></body>");
-
             client.println();
             break;
           } else {
