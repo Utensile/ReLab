@@ -3,7 +3,7 @@
 #include <WiFi.h>
 #include "image1.h"
 #include "mario.h"
-#include "deathwing.h"
+#include "zanas.h"
 
 WROVER_KIT_LCD tft;
 const char* ssid     = "RE:Lab";
@@ -14,6 +14,7 @@ void setup() {
   Serial.begin(115200);
   tft.begin();
   tft.setRotation(1);
+  tft.drawJpg(zanas, zanas_len);
   Serial.begin(115200);
 
   delay(10);
@@ -69,7 +70,7 @@ void loop() {
         // Check to see if the client request was "GET /H" or "GET /L":
         if (currentLine.endsWith("GET /H")) {
           tft.setRotation(1);
-          tft.drawJpg(deathwing, deathwing_len);     // GET /H turns the LED on
+          tft.drawJpg(zanas, zanas_len);     // GET /H turns the LED on
         }
         if (currentLine.endsWith("GET /L")) {
           tft.setRotation(1);
