@@ -49,7 +49,8 @@ void loop() {
     String currentLine = "";                // make a String to hold incoming data from the client
     while (client.connected()) {            // loop while the client's connected
       if (client.available()) {             // if there's bytes to read from the client
-        char c = client.read();             // read a byte
+        char c = client.read();  
+                 // read a byte
 
         if (c == '\n') {                    // if the byte is a newline character
           if (currentLine.length() == 0) {
@@ -72,15 +73,12 @@ void loop() {
         if (currentLine.endsWith("GET /H")) {
           pos++;
           pos = pos % IMG_NUM;
-          extToInt();
-          delay(5000);
+         // Serial.println(extToInt());
           tft.setRotation(1);
-          tft.cl
           tft.drawJpg(img[pos], len[pos]);
         }
         if (currentLine.endsWith("GET /L")) {
-          extToInt();
-          delay(5000);
+       //   extToInt();
           pos--;
           if (pos < 0)
             pos = IMG_NUM - 1;
@@ -97,15 +95,17 @@ void loop() {
 unsigned long extToInt() {
   unsigned long start;
   int w, i, i2,
-      cx = tft.width() / 2 - 1,
-      cy = tft.height() / 2 - 1;
+      cx = tft.width() / 2,
+      cy = tft.height() / 2;
 
-  tft.fillScreen(WROVER_BLACK);
-  w = min(tft.width(), tft.height());
+  //tft.fillScreen(WROVER_BLACK);
+  //w = min(tft.width(), tft.height());
+  w = tft.width();
   start = micros();
   for (i = 0; i < w; i += 6) {
     i2 = i / 2;
-    tft.drawRoundRect(cx - i2, cy - i2, i, i, i / 8, tft.color565(i, 0, 0));
-    delay(50);
+    tft.fillRoundRect(cx-i2, cy-i2, i, i, i/8, tft.color565(0, 0, i));
+    delay(2);
   }
+  return micros()-start;
 }
