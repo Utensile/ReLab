@@ -86,7 +86,7 @@ void loop() {
           if(pos<0)
             pos=0;             // GET /L turns the LED off
         }
-        ttft.setRotation(1);
+        tft.setRotation(1);
         tft.drawJpg(img[pos], len[pos]);
       }
     }
