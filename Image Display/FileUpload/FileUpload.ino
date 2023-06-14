@@ -2,7 +2,6 @@
 #include "WROVER_KIT_LCD.h"
 #include <WiFi.h>
 #include "images.h"
-#include <SPIFFS.h>
 
 #define IMG_NUM 8
 int pos=0;
@@ -49,97 +48,47 @@ void loop() {
 
   if (client) {                             // if you get a client,          // print a message out the serial port
     String currentLine = "";                // make a String to hold incoming data from the client
-    bool imageUpload = false;                // flag to check if an image is being uploaded
-    File imageFile;                          // file object to hold the uploaded image
-
     while (client.connected()) {            // loop while the client's connected
-      if (client.available()) {             // if there's bytes to read from the client
-        char c = client.read();             // read a byte
-
-        if (c == '\n') {                    // if the byte is a newline character
+      if (client.available()) {             // if there's bytes to read from the client,
+        char c = client.read();             // read a byte, then                  // print it out the serial monitor
+        if (c == '\n') {                    // if the byte is a newline character a response:
           if (currentLine.length() == 0) {
-            // Handle HTTP request
-            // ...
-
-            if (imageUpload) {
-              saveImage(imageFile);
-              displayImage("/uploaded_image.jpg");
-              imageUpload = false;
-            }
-
-            // The HTTP response ends with another blank line
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
             client.println();
-            // Break out of the while loop
+            client.print("<style>body{font-family: Arial, sans-serif; text-align: center; padding: 40px 20px;}");
+            client.print("a{-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial; color: #fff; background-color: #4CAF50; border: none; padding: 15px 75px; font-size: 30px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;}.button-container{display: flex; justify-content: center; gap: 10px; margin-top: 10vh; margin-bottom: 40px;}a:hover{background-color: #45a049;}</style>");
+            client.print("<body><div class=\"button-container\"><a href=\"/L\" type=\"button\">Previous Image</a><a href=\"/H\" type=\"button\">Next Image</a></div><div class=\"upload-container\"><input type=\"file\" id=\"file-upload\"><label for=\"file-upload\" class=\"upload-button\">Upload Image</label></div></body>");
+
+            // The HTTP response ends with another blank line:
+            client.println();
+            // break out of the while loop:
             break;
-          } else {
-            // if you got a newline, then clear currentLine
+          } else {    // if you got a newline, then clear currentLine:
             currentLine = "";
           }
-        } else if (c != '\r') {  // if you got anything else but a carriage return character
+        } else if (c != '\r') {  // if you got anything else but a carriage return character,
           currentLine += c;      // add it to the end of the currentLine
-
-          // Check if an image is being uploaded
-          if (currentLine.startsWith("Content-Type: image/jpeg")) {
-            imageUpload = true;
-            imageFile = SPIFFS.open("/uploaded_image.jpg", FILE_WRITE);
-            if (!imageFile) {
-              Serial.println("Failed to create image file");
-              client.println("HTTP/1.1 500 Internal Server Error");
-              client.println();
-              client.stop();
-              return;
-            }
-          }
         }
-      }
 
-      // Write the received bytes to the image file if an image is being uploaded
-      if (imageUpload && client.available()) {
-        imageFile.write(client.read());
+        if (currentLine.endsWith("GET /H")) {
+          pos++;
+          pos=pos%IMG_NUM;
+          tft.setRotation(1);
+          tft.drawJpg(img[pos], len[pos]);
+        }
+        if (currentLine.endsWith("GET /L")) {
+          pos--; 
+          if(pos<0)
+            pos=IMG_NUM-1;
+          tft.setRotation(1);
+          tft.drawJpg(img[pos], len[pos]);
+          client.print("<img src=\"\">")
+        }
+        
       }
     }
-
-    // close the connection
+    // close the connection:
     client.stop();
   }
-}
-
-void saveImage(File file) {
-  if (!file) {
-    Serial.println("Failed to open file for saving");
-    return;
-  }
-
-  String filename = "/uploaded_image.jpg";  // Specify the filename to save the image
-
-  File outputFile = SPIFFS.open(filename, FILE_WRITE);
-  if (!outputFile) {
-    Serial.println("Failed to create output file");
-    file.close();
-    return;
-  }
-
-  while (file.available()) {
-    outputFile.write(file.read());
-  }
-
-  outputFile.close();
-  file.close();
-
-  Serial.print("Image saved as: ");
-  Serial.println(filename);
-}
-
-void displayImage(const char* filename) {
-  File imageFile = SPIFFS.open(filename, FILE_READ);
-  if (!imageFile) {
-    Serial.println("Failed to open image file");
-    return;
-  }
-
-  tft.setRotation(1);
-  tft.fillScreen(TFT_BLACK);  // Clear the screen before displaying the image
-  tft.drawJpgFile(imageFile, 0, 0, tft.width(), tft.height());
-
-  imageFile.close();
 }
