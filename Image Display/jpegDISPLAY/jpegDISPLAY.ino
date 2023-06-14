@@ -1,24 +1,83 @@
 #include "Adafruit_GFX.h"
 #include "WROVER_KIT_LCD.h"
-#include "esp_wp1.h"
-#include "esp_wp2.h"
-
-#define BUTTON 0
+#include <WiFi.h>
+#include "image1.h"
+#include "mario.h"
+#include "deathwing.h"
 
 WROVER_KIT_LCD tft;
+const char* ssid     = "RE:Lab";
+const char* password = "Interact2019!";
+WiFiServer server(80);
 
 void setup() {
-  pinMode(BUTTON, INPUT_PULLUP);
+  Serial.begin(115200);
   tft.begin();
-  tft.setRotation(0);
-  tft.drawJpg(esp_wp2_jpg, esp_wp2_jpg_len);
+  tft.setRotation(1);
+  Serial.begin(115200);
+
+  delay(10);
+
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+
 }
 
 void loop() {
-  delay(1000);
-  tft.setRotation(1);
-  tft.drawJpg(esp_wp1_jpg, esp_wp1_jpg_len);
-  delay(1000);
-  tft.setRotation(0);
-  tft.drawJpg(esp_wp2_jpg, esp_wp2_jpg_len);
+  WiFiClient client = server.available();   // listen for incoming clients
+
+  if (client) {                             // if you get a client,          // print a message out the serial port
+    String currentLine = "";                // make a String to hold incoming data from the client
+    while (client.connected()) {            // loop while the client's connected
+      if (client.available()) {             // if there's bytes to read from the client,
+        char c = client.read();             // read a byte, then                  // print it out the serial monitor
+        if (c == '\n') {                    // if the byte is a newline character a response:
+          if (currentLine.length() == 0) {
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println();
+            client.print("<style>body{font-family: Arial, sans-serif; text-align: center; padding: 40px 20px;}");
+            client.print("a{-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial; color: #fff; background-color: #4CAF50; border: none; padding: 15px 75px; font-size: 30px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;}.button-container{display: flex; justify-content: center; gap: 10px; margin-top: 10vh; margin-bottom: 40px;}a:hover{background-color: #45a049;}</style>");
+            client.print("<body><div class=\"button-container\"><a href=\"/L\" type=\"button\">Previous Image</a><a href=\"/H\" type=\"button\">Next Image</a></div>");
+
+            // The HTTP response ends with another blank line:
+            client.println();
+            // break out of the while loop:
+            break;
+          } else {    // if you got a newline, then clear currentLine:
+            currentLine = "";
+          }
+        } else if (c != '\r') {  // if you got anything else but a carriage return character,
+          currentLine += c;      // add it to the end of the currentLine
+        }
+
+        // Check to see if the client request was "GET /H" or "GET /L":
+        if (currentLine.endsWith("GET /H")) {
+          tft.setRotation(1);
+          tft.drawJpg(deathwing, deathwing_len);     // GET /H turns the LED on
+        }
+        if (currentLine.endsWith("GET /L")) {
+          tft.setRotation(1);
+          tft.drawJpg(mario, mario_len);              // GET /L turns the LED off
+        }
+      }
+    }
+    // close the connection:
+    client.stop();
+  }
 }
