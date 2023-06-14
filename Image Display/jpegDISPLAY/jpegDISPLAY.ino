@@ -6,13 +6,13 @@
 #include "zanas.h"
 
 #define IMG_NUM 3
-int pos=2;
+int pos=0;
 WROVER_KIT_LCD tft;
 const char* ssid     = "RE:Lab";
 const char* password = "Interact2019!";
 
-const int len[IMG_NUM] =      {image1_len, mario_len, zanas_len};
-const uint8_t* img[IMG_NUM] = {image1, mario, zanas};
+const int len[IMG_NUM] =      {zanas_len, mario_len, zanas_len};
+const uint8_t* img[IMG_NUM] = {zanas, mario};
 
 WiFiServer server(80);
 
@@ -20,7 +20,7 @@ void setup() {
   Serial.begin(115200);
   tft.begin();
   tft.setRotation(1);
-  tft.drawJpg(img[2], len[2]);
+  tft.drawJpg(img[0], len[0]);
   Serial.begin(115200);
 
   delay(10);
