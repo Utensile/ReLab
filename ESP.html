@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding: 40px 20px;
+            }
+
+            a {
+                -webkit-appearance: button;
+                -moz-appearance: button;
+                appearance: button;
+                text-decoration: none;
+                color: initial;
+                color: #fff;
+                background-color: #4CAF50;
+                border: none;
+                padding: 15px 75px;
+                font-size: 30px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .button-container {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 10vh;
+                margin-bottom: 40px;
+            }
+
+            a:hover {
+                background-color: #45a049;
+            }
+
+            .upload-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .upload-container input[type="file"] {
+                display: none;
+            }
+
+            .upload-button {
+                color: #fff;
+                background-color: #d9e718; 
+                border: none;
+                padding: 10px 20px;
+                font-size: 25px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .upload-button:hover {
+                background-color: #71790d;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="button-container">
+            <a href="/L" type="button">Previous Image</a>
+            <a href="/H" type="button">Next Image</a>
+        </div>
+        <div class="upload-container">
+            <input type="file" id="file-upload">
+            <label for="file-upload" class="upload-button">Upload Image</label>
+        </div>
+    </body>
+</html>
