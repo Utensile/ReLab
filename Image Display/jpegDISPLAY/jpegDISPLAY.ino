@@ -1,25 +1,36 @@
 #include "Adafruit_GFX.h"
 #include "WROVER_KIT_LCD.h"
 #include <WiFi.h>
-#include "images.h"
+#include <SPIFFS.h>
 
-#define IMG_NUM 8
+int IMG_NUM 8
 int pos = 0;
 WROVER_KIT_LCD tft;
 const char* ssid = "RE:Lab";
 const char* password = "Interact2019!";
 
 const char* links[IMG_NUM] = {"https://i.ibb.co/7rX5Gvj/zanas.jpg", "https://i.ibb.co/SrrjXQW/mario.png", "https://i.ibb.co/bryjPHV/beacon.jpg", "https://i.ibb.co/fYKMXN9/black-hole.jpg", "https://i.ibb.co/znvswRm/earth.jpg", "https://i.ibb.co/Z1xZmPW/orbit.jpg", "https://i.ibb.co/rfX1QLZ/rocket.jpg", "https://i.ibb.co/N6K4ct3/rover.jpg"};
-const int len[IMG_NUM] = {zanas_len, mario_len, beacon_len, black_hole_len, earth_len, orbit_len, rocket_len, rover_len};
-const uint8_t* img[IMG_NUM] = {zanas, mario, beacon, black_hole, earth, orbit, rocket, rover};
+const char* imagePath[IMG_NUM] ={"/zanas.jpg", "/mario.jpg", "/beacon.jpg", "/black_hole.jpg", "/earth.jpg", "/orbit.jpg", "/rocket.jpg", "/rover.jpg"};
 
 WiFiServer server(80);
 
 void setup() {
   Serial.begin(115200);
+  if (!SPIFFS.begin()) {
+    Serial.println("SPIFFS init failed");
+    return;
+  } 
+  Serial.println("SPIFFS init finished");
+  File root = SPIFFS.open("/");
+  File file = root.openNextFile();
+  
+  while (file) {
+    Serial.println(file.name());
+    file = root.openNextFile();
+  }
   tft.begin();
   tft.setRotation(1);
-  tft.drawJpg(img[0], len[0]);
+  tft.drawJpgFile(SPIFFS, imagePath[0], 0, 0);
   Serial.begin(115200);
 
   delay(10);
@@ -74,19 +85,15 @@ void loop() {
         if (currentLine.endsWith("GET /H")) {
           pos++;
           pos = pos % IMG_NUM;
-          //extToInt();
-          //delay(5000);
           tft.setRotation(1);
-          tft.drawJpg(img[pos], len[pos]);
+          tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
         }
         if (currentLine.endsWith("GET /L")) {
-          //extToInt();
-          //delay(5000);
           pos--;
           if (pos < 0)
             pos = IMG_NUM - 1;
           tft.setRotation(1);
-          tft.drawJpg(img[pos], len[pos]);
+          tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
         }
 
       }
