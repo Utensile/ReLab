@@ -3,7 +3,7 @@
 #include <WiFi.h>
 #include <SPIFFS.h>
 
-int IMG_NUM = 8;
+#define IMG_NUM 8;
 int pos = 0;
 WROVER_KIT_LCD tft;
 const char* ssid = "RE:Lab";
