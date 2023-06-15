@@ -10,8 +10,9 @@
 const char* ssid = "RE:Lab";
 const char* password = "Interact2019!";
 
+const char* imagePath[20] ={"/zanas.jpg", "/mario.jpg", "/beacon.jpg", "/black_hole.jpg", "/earth.jpg", "/orbit.jpg", "/rocket.jpg", "/rover.jpg"};
 
-#define IMG_NUM 8
+int imgN=8
 int pos = 0;
 WROVER_KIT_LCD tft;
 
@@ -32,6 +33,7 @@ void setup() {
   //inizializzazione canvas
   tft.begin();
   tft.setRotation(1);
+  tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
   // Connessione alla rete WiFi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -59,6 +61,19 @@ void setup() {
   // Configurazione del server web
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/index.html", "text/html");
+  });
+
+  server.on("/H", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/index.html", "text/html");
+    pos=(pos+1)%imgN;
+    tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
+  });
+  server.on("/L", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/index.html", "text/html");
+    pos-=1;
+    if(pos<0)
+      pos=imgN-1;
+    tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
   });
 
 
@@ -98,6 +113,9 @@ void setup() {
       if (final) {
         Serial.println("Caricamento immagine completato");
         tft.drawJpgFile(SPIFFS, "/immagine.jpg", 0, 0);
+        imgN+=1;
+        pos=imgN-1; //Metti ultimo num array
+        imagePath[pos]="/immagine.jpg";
       }
     }
   );
