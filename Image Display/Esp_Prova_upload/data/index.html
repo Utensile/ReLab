@@ -73,39 +73,68 @@
             <label for="file-upload" class="upload-button" >Upload Image</label>
         </div>
         <br>
-        <img src = "image.jpg">
+
         
     </body>
 
 
 
     <script>
-        imagePath =["/zanas.jpg", "/mario.jpg", "/beacon.jpg", "/black_hole.jpg", "/earth.jpg", "/orbit.jpg", "/rocket.jpg", "/rover.jpg"];
+function resizeImage(file, maxWidth, maxHeight, callback) {
+  const image = new Image();
+
+  image.onload = function() {
+    let width = 320;
+    let height = 240;
+    
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0, width, height);
+
+    canvas.toBlob(function(jpegBlob) {
+      const jpegFile = new File([jpegBlob], file.name + '.jpg', { type: 'image/jpeg' });
+      callback(jpegFile);
+    }, 'image/jpeg', 0.9);
+
+  };
+
+  image.src = URL.createObjectURL(file);
+}
+
+window.onload = function() {
+  document.getElementById('file-upload').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+
+    resizeImage(file, 340, 240, function(resizedFile) {
+      const formData = new FormData();
+      formData.append('image', resizedFile);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload', true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log('Caricamento immagine completato');
+          console.log('Risposta del server:', xhr.responseText);
+          // Aggiungi qui eventuali azioni aggiuntive dopo il completamento del caricamento dell'immagine
+        }
+      };
+      xhr.send(formData);
+      setTimeout("window.location.href = \"/\"", 500);
+    });
+  });
+};
 
 
-        window.onload = function(){}
 
 
 
-        document.getElementById('file-upload').addEventListener('change', function (event) {
-            const file = event.target.files[0];
 
-            const formData = new FormData();
-            formData.append('image', file);
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload', true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    console.log('Caricamento immagine completato');
-                    console.log('Risposta del server:', xhr.responseText);
-                    // Aggiungi qui eventuali azioni aggiuntive dopo il completamento del caricamento dell'immagine
-                }
-            };
-            xhr.send(formData);
-            setTimeout("window.location.href = \"/\"", 500)
-            
-        });
+
     </script>
     
 </html>
