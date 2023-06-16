@@ -11,8 +11,8 @@ const char* ssid = "RE:Lab";
 const char* password = "Interact2019!";
 
 const char* imagePath[20] ={"/zanas.jpg", "/mario.jpg", "/beacon.jpg", "/black_hole.jpg", "/earth.jpg", "/orbit.jpg", "/rocket.jpg", "/rover.jpg"};
-const char* imgNameChar;
-String imgName;
+const char* imgNameChar[20];
+String imgName[20];
 
 int imgN=8;
 int pos = 0;
@@ -82,6 +82,11 @@ void setup() {
     Serial.println(imagePath[pos]);
     tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
   });
+  for(int i=0; i<imgN; i++){
+    server.on(imagePath[i], HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(SPIFFS, imagePath[i], "image/jpeg");
+    });
+  }
 
 
   
@@ -99,10 +104,10 @@ void setup() {
     [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
 
       if (!index) {
-        imgName = "/img" + String(nUpload) + ".jpg";
-        imgNameChar = imgName.c_str();
-        Serial.println(imgNameChar);
-        File file = SPIFFS.open(imgNameChar, FILE_WRITE);
+        imgName[nUpload] = "/img" + String(nUpload) + ".jpg";
+        imgNameChar[nUpload] = imgName[nUpload].c_str();
+        Serial.println(imgNameChar[nUpload]);
+        File file = SPIFFS.open(imgNameChar[nUpload], FILE_WRITE);
         if (!file) {
           Serial.println("Errore nell'apertura del file");
           return;
@@ -111,7 +116,7 @@ void setup() {
         file.close();
        } else {
         // Caricamento successivo del file
-        File file = SPIFFS.open(imgNameChar, FILE_APPEND);
+        File file = SPIFFS.open(imgNameChar[nUpload], FILE_APPEND);
         if (!file) {
           Serial.println("Errore nell'apertura del file");
           return;
@@ -121,10 +126,10 @@ void setup() {
       }
       if (final) {
         Serial.println("Caricamento immagine completato");
-        tft.drawJpgFile(SPIFFS, imgNameChar, 0, 0);
+        tft.drawJpgFile(SPIFFS, imgNameChar[nUpload], 0, 0);
         imgN+=1;
         pos=imgN-1; //Metti ultimo num array
-        imagePath[pos]=imgNameChar;
+        imagePath[pos]=imgNameChar[nUpload];
         nUpload+=1;
       }
     }
