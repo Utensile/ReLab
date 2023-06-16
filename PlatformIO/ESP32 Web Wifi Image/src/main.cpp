@@ -6,13 +6,15 @@
 #include "Adafruit_GFX.h"
 #include "WROVER_KIT_LCD.h"
 
+#define MAXimg 20
 
 const char* ssid = "RE:Lab";
 const char* password = "Interact2019!";
 
-const char* imagePath[20] ={"/zanas.jpg", "/mario.jpg", "/beacon.jpg", "/black_hole.jpg", "/earth.jpg", "/orbit.jpg", "/rocket.jpg", "/rover.jpg"};
-const char* imgNameChar[20];
-String imgName[20];
+const char* imagePath[MAXimg] ={"/zanas.jpg", "/mario.jpg", "/beacon.jpg", "/black_hole.jpg", "/earth.jpg", "/orbit.jpg", "/rocket.jpg", "/rover.jpg"};
+const char* imgNameChar[MAXimg];
+
+String imgName[MAXimg];
 
 int imgN=8;
 int pos = 0;
@@ -67,26 +69,22 @@ void setup() {
   });
 
   server.on("/H", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html", "text/html");
     pos=(pos+1)%imgN;
-    Serial.println(pos);
-    Serial.println(imagePath[pos]);
+    request->send(SPIFFS, "/index.html", "text/html");
     tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
   });
   server.on("/L", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html", "text/html");
+    
     pos-=1;
     if(pos<0)
       pos=imgN-1;
-    Serial.println(pos);
-    Serial.println(imagePath[pos]);
+    request->send(SPIFFS, "/index.html", "text/html");
     tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
   });
-  for(int i=0; i<imgN; i++){
-    server.on(imagePath[i], HTTP_GET, [](AsyncWebServerRequest *request){
-      request->send(SPIFFS, imagePath[i], "image/jpeg");
-    });
-  }
+
+  server.on("/image.jpg", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(SPIFFS, imagePath[pos], "image/jpeg");
+  });
 
 
   
@@ -99,7 +97,6 @@ void setup() {
       AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Caricamento immagine completato");
       response->addHeader("Access-Control-Allow-Origin", "*");
       request->send(response);
-      Serial.println("BreakPoint_1");
     },
     [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
 

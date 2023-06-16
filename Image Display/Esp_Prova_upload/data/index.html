@@ -73,7 +73,7 @@
             <label for="file-upload" class="upload-button" >Upload Image</label>
         </div>
         <br>
-        <img src = "mario.jpg">
+        <img src = "image.jpg">
         
     </body>
 
@@ -84,7 +84,6 @@
 
 
         window.onload = function(){}
-
 
 
 
@@ -104,6 +103,8 @@
                 }
             };
             xhr.send(formData);
+            setTimeout("window.location.href = \"/\"", 500)
+            
         });
     </script>
     
