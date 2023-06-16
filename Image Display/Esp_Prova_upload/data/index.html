@@ -73,12 +73,21 @@
             <label for="file-upload" class="upload-button" >Upload Image</label>
         </div>
         <br>
+        <img src = "mario.jpg">
         
     </body>
 
 
 
     <script>
+        imagePath =["/zanas.jpg", "/mario.jpg", "/beacon.jpg", "/black_hole.jpg", "/earth.jpg", "/orbit.jpg", "/rocket.jpg", "/rover.jpg"];
+
+
+        window.onload = function(){}
+
+
+
+
         document.getElementById('file-upload').addEventListener('change', function (event) {
             const file = event.target.files[0];
 
