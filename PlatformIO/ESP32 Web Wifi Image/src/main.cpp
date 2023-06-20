@@ -3,7 +3,7 @@
 #include <AsyncTCP.h>
 #include "SPIFFS.h"
 #include "FS.h"
-#include "Adafruit_FX.h"
+#include "Adafruit_GFX.h"
 #include "WROVER_KIT_LCD.h"
 #define Bu1 18
 #define Bu2 19
