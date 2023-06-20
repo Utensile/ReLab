@@ -3,14 +3,31 @@
 #include <AsyncTCP.h>
 #include "SPIFFS.h"
 #include "FS.h"
-#include "Adafruit_GFX.h"
+#include "Adafruit_FX.h"
 #include "WROVER_KIT_LCD.h"
+#define Bu1 18
+#define Bu2 19
+/*
+
+
+void setup() {
+  Serial.begin(115200);
+  
+}
+
+void loop() {
+  //print the buttons when their state changes
+  
+}*/
 
 #define MAXimg 20
 
-//dobbiamo trovare un modo per connetterci al wifi a scelta.
+bool last_state1 = 1;
+bool last_state2 = 1;
+bool current_state1 = 0;
+bool current_state2 = 0;
+long last_time = 0;
 
-//Se non lo troviamo amen
 const char* ssid = "RE:Lab";
 const char* password = "Interact2019!";
 
@@ -44,7 +61,8 @@ void removeElement(char* arr[], int& size, int index) {
 
 void setup() {
   Serial.begin(115200);
-
+  pinMode(Bu1, INPUT_PULLUP);
+  pinMode(Bu2, INPUT_PULLUP);
   // Montaggio della memoria SPIFFS
   if (!SPIFFS.begin()) {
     Serial.println("Errore nel montaggio di SPIFFS");
@@ -196,6 +214,27 @@ void setup() {
 }
 
 void loop() {
-  // Codice di gestione delle altre operazioni, se necessario
-
+  if(millis() - last_time > 250){
+    last_time = millis();
+    current_state1 = digitalRead(Bu1);
+    current_state2 = digitalRead(Bu2);
+    if (current_state1 != last_state1){
+      if(!current_state1){
+        Serial.println("Previous Image: ");
+        pos -= 1;
+        if (pos < 0)
+          pos = imgN - 1;
+        tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
+      }
+      last_state1 = current_state1;
+    }
+    if(current_state2 != last_state2){
+      if(!current_state2){
+        Serial.println("Next Image: ");
+        pos = (pos + 1) % imgN;
+        tft.drawJpgFile(SPIFFS, imagePath[pos], 0, 0);
+      }
+      last_state2 = current_state2;
+    }
+  }
 }
