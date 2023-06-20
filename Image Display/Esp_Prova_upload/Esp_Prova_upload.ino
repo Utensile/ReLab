@@ -12,7 +12,7 @@ const char* password = "Interact2019!";
 
 const char* imagePath[20] ={"/zanas.jpg", "/mario.jpg", "/beacon.jpg", "/black_hole.jpg", "/earth.jpg", "/orbit.jpg", "/rocket.jpg", "/rover.jpg"};
 
-int imgN=8
+int imgN=8;
 int pos = 0;
 WROVER_KIT_LCD tft;
 
